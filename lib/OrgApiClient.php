@@ -1,5 +1,6 @@
 <?php
 
+require_once 'XmlHelper.php';
 
 class OrgApiClient
 {
@@ -14,7 +15,7 @@ class OrgApiClient
     private $apiPassword = '89f9577b-f693-49c0-840d-29a1338f1bfd';
 
     private $soapHeaderNS = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd';
-
+    private $msgDataNS = 'http://schemas.datacontract.org/2004/07/Itslearning.Integration.ContentImport.Services.Entities';
 
     public function __construct()
     {
@@ -68,11 +69,43 @@ class OrgApiClient
     }
 
     /**
-     * @param $messageXml
+     * @param int $type
+     * @param string $messageXml
      */
-    public function sendMessage($messageXml)
+    public function sendMessage($type, $messageXml)
     {
         $this->log('>>> Start sending XML message');
+
+
+//        $msgBody = $this->prepareMessageBody($type, $messageXml);
+        try {
+
+//            $dataMessage = new ArrayObject();
+//
+//            $Data = new SoapVar($messageXml, XSD_ANYXML, null, null, 'Data');
+//            $Type = new SoapVar($type, XSD_STRING, null, null, 'Type');
+//            $dataMessage->append($Data);
+//            $dataMessage->append($Type);
+//
+//            $dataMessage = new SoapVar($dataMessage, SOAP_ENC_ARRAY, null,null, 'dataMessage');
+//            $dataMessage = new SoapVar(array($Data, $Type), SOAP_ENC_ARRAY, null, null, 'messageData');
+
+//            $dataMessage = $this->prepareMessageBody($type, $messageXml);
+
+            $Data = new stdClass();
+
+            $dataMessage = new stdClass();
+            $dataMessage->Data = (string) $messageXml;
+            $dataMessage->Type = '123';
+
+            $request = new stdClass();
+            $request->dataMessage = new SoapVar($dataMessage, SOAP_ENC_OBJECT, null, null, 'dataMessage', $this->msgDataNS);
+
+            /** @noinspection PhpUndefinedMethodInspection */
+            $this->soapClient->AddMessage($request);
+        } catch (\Throwable $e) {
+            $this->log($e->getMessage());
+        }
     }
 
     /**
@@ -112,5 +145,18 @@ class OrgApiClient
         $xml = $this->formatXml($this->soapClient->__getLastResponse());
         $xml = $encodeEntities ? htmlentities($xml) : $xml;
         echo "\n\n======== Response ==========\n$xml\n";
+    }
+
+    private function prepareMessageBody($type, $messageXml)
+    {
+        $msgContainerXml = "<dataMessage xmlns:mdata='{$this->msgDataNS}'/>";
+        $dataMessage = new SimpleXMLElement($msgContainerXml);
+        $Data = $dataMessage->addChild('Data', null, $this->msgDataNS);
+
+//        XmlHelper::addCDATAChild($Data, $messageXml);
+
+        $dataMessage->addChild('Type', $type, $this->msgDataNS);
+
+        return XmlHelper::convertToPlainXml($dataMessage);
     }
 }
