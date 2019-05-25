@@ -1,0 +1,19 @@
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" xmlns:u="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
+	<s:Header>
+		<o:Security s:mustUnderstand="1" xmlns:o="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+			<u:Timestamp u:Id="_0">
+				<u:Created>2019-05-20T14:41:22.765Z</u:Created>
+				<u:Expires>2019-05-20T14:46:22.765Z</u:Expires>
+			</u:Timestamp>
+			<o:UsernameToken u:Id="uuid-0dfc63f0-5c56-4eb5-9972-7a630bc524df-1">
+				<o:Username>8e6c2264-ea46-47c7-b96c-9e2335d4cffd</o:Username>
+				<o:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">c84c1df9-61ae-4956-8769-d749a7095cca</o:Password>
+			</o:UsernameToken>
+		</o:Security>
+	</s:Header>
+	<s:Body>
+		<GetMessageResult xmlns="http://tempuri.org/">
+			<messageId>4342</messageId>
+		</GetMessageResult>
+	</s:Body>
+</s:Envelope>

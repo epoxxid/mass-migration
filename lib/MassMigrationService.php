@@ -1,28 +1,25 @@
 <?php
 
+require_once 'ResourcesRepository.php';
 
 class MassMigrationService
 {
     const EVENT_ITEM_ENQUEUED = 'item-enqueued';
     const EVENT_FOLDER_CREATED = 'folder-created';
 
-    const TAKS_CREATE_FOLDER = 'create-folder';
+    const TASK_CREATE_FOLDER = 'create-folder';
     const TASK_CHECK_STATUS = 'check-status';
 
-    const STATUS_FINISHED = 'finished';
-
-    /**
-     * @var GearmanClient
-     */
+    /** @var GearmanClient */
     private $gearmanClient;
 
-    /**
-     * @var array
-     */
-    private $dependencies = array();
+    /** @var ResourcesRepository */
+    private $resourcesRepository;
 
     public function __construct()
     {
+        $this->resourcesRepository = new ResourcesRepository();
+
         $this->gearmanClient = new GearmanClient();
         $this->gearmanClient->addServer();
         $this->gearmanClient->setCompleteCallback(array($this, 'onTaskCompleted'));
@@ -30,8 +27,6 @@ class MassMigrationService
 
     public function start()
     {
-        // Fetch room data and build list of dependencies
-        $this->initDependencies();
         // Check dependency-free items and add them into work
         $this->handleResolvedDependencies();
 
@@ -41,38 +36,6 @@ class MassMigrationService
         }
 
         $this->log('Finished!');
-    }
-
-
-
-    private function initDependencies()
-    {
-        $this->dependencies = array(
-            array(
-                'id' => 1,
-                'type' => 'folder',
-                'name' => 'Root',
-                'status' => null,
-                'dependsOn' => null,
-                'syncKey' => ''
-            ),
-            array(
-                'id' => 2,
-                'type' => 'folder',
-                'name' => 'My Documents',
-                'status' => null,
-                'dependsOn' => array(1),
-                'syncKey' => ''
-            ),
-            array(
-                'id' => 3,
-                'type' => 'folder',
-                'name' => 'Cars',
-                'status' => null,
-                'dependsOn' => array(2),
-                'syncKey' => ''
-            ),
-        );
     }
 
     /**
@@ -97,13 +60,12 @@ class MassMigrationService
      */
     private function onFolderCreated($itemId, $syncKey)
     {
-        $this->log( "Folder created with syncKey = {$syncKey}");
-
+        $this->log("Folder created with syncKey = {$syncKey}");
         // Update database record
-        $this->updateDependencyItem($itemId, $syncKey);
+        $this->resourcesRepository->updateDependencyItem($itemId, $syncKey);
+        // Check for resolved dependencies
         $this->handleResolvedDependencies();
     }
-
 
     /**
      * @param $itemId
@@ -127,64 +89,23 @@ class MassMigrationService
         echo "$str\n";
     }
 
-    /**
-     * @param $itemId
-     * @param $syncKey
-     */
-    private function updateDependencyItem($itemId, $syncKey)
-    {
-        foreach ($this->dependencies as &$dep) {
-            if ($dep['id'] === $itemId) {
-                $dep['syncKey'] = $syncKey;
-                $dep['status'] = self::STATUS_FINISHED;
-                /** @noinspection SqlResolve */
-                /** @noinspection SqlNoDataSourceInspection */
-                $this->log("UPDATE deps SET syncKey = $syncKey AND status = 'finished' WHERE id = $itemId");
-            }
-        }
-    }
-
     private function handleResolvedDependencies()
     {
         $this->log(PHP_EOL . 'Checking if there any dependencies are resolved and item can be processed');
-        foreach ($this->dependencies as $dep) {
-            // Item processed already
-            if (!empty($dep['syncKey']) || $dep['status'] === self::STATUS_FINISHED) {
-                continue;
-            }
 
-            // Item has no dependencies
-            if (empty($dep['dependsOn'])) {
-                $this->log('Item with ID ' . $dep['id'] . ' has no dependencies at all');
-                $this->triggerFolderCreation($dep);
-                continue;
-            }
-
-            $hasNoDeps = true;
-            foreach ($this->dependencies as $target) {
-                if (in_array($target['id'], $dep['dependsOn'])) {
-                    $hasNoDeps = $hasNoDeps && !empty($target['syncKey']);
-                }
-            }
-
-            if ($hasNoDeps) {
-                $this->log('Resolved dependencies of item with ID = ' . $dep['id']);
-                $this->triggerFolderCreation($dep);
-            }
+        $deps = $this->resourcesRepository->getIndependentItems();
+        foreach ($deps as $dep) {
+            $this->processDependency($dep);
         }
     }
 
-    /**
-     * @param array $dep
-     */
-    private function triggerFolderCreation($dep)
+    private function processDependency(array $dependency)
     {
-        $folderId = $dep['id'];
-        $folderName = $dep['name'];
-        // Here we assume we send parentID for item etc.
-        $taskData = serialize(array($folderId, $folderName));
-        $this->gearmanClient->addTask(self::TAKS_CREATE_FOLDER, $taskData);
-
-        $this->log("Added task for creation of the folder '{$folderName}' with ID = {$folderId}");
+        $taskData = serialize($dependency);
+        switch ($dependency['type']) {
+            case 'folder':
+                $this->gearmanClient->addTask(self::TASK_CREATE_FOLDER, $taskData);
+                break;
+        }
     }
 }

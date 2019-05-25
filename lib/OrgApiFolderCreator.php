@@ -12,7 +12,6 @@ class OrgApiFolderCreator
     /** @var bool */
     private $debug;
 
-
     /**
      * OrgApiFolderCreator constructor.
      * @param OrgApiClient $apiClient

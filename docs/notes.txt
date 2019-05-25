@@ -1,0 +1,25 @@
+# ================ OrgAPI WSDL ===================
+https://f19-fronter.itslbeta.com:4421/DataService.svc?wsdl
+
+# =============== API Credentials ===============
+Name	            F19
+URL	                https://f19-fronter.itslbeta.com
+Org API username	88b7e536-249a-4b65-a898-7e81db34ba9a
+Org API password	89f9577b-f693-49c0-840d-29a1338f1bfd
+
+# ============= User Credentials =================
+-type-                    -name-            -user-    -password- -syncKey-
+------------------------------------------------------------------------------
+System administrator      Admin Admin       admin     Fronter123
+User for creating content User Content      user      Fronter123 user_content
+Teacher in a course	      Rebecca Jeffries	rjeffries Fronter123 user_rjeffries
+Student in a course       Jimmy Savage	    jimmy     Fronter123 user_jimmy
+
+# ============ Courses info:=====================
+-name-        | -syncKey-
+-----------------------------------
+History       | course-history
+Math 101      | course-math101
+Science 8A    | course-science-8a
+Sample course |
+

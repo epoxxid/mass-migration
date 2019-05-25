@@ -1,0 +1,32 @@
+<soapenv:Envelope
+        xmlns:its="http://schemas.datacontract.org/2004/07/Itslearning.Integration.ContentImport.Services.Entities"
+        xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+        xmlns:tem="http://tempuri.org/">
+    <soapenv:Header>
+        <wsse:Security soapenv:mustUnderstand="1" xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+            <wsse:UsernameToken>
+                <wsse:Username>88b7e536-249a-4b65-a898-7e81db34ba9a</wsse:Username>
+                <wsse:Password>89f9577b-f693-49c0-840d-29a1338f1bfd</wsse:Password>
+            </wsse:UsernameToken>
+        </wsse:Security>
+    </soapenv:Header>
+    <soapenv:Body>
+        <tem:AddMessage>
+            <tem:dataMessage>
+                <its:Data><![CDATA[
+
+<Message xmlns="urn:message-schema">
+ <CreateCourseElementFolder>
+  <CourseSyncKey>course-history</CourseSyncKey>
+  <UserSyncKey>user_content</UserSyncKey>
+  <Title>Hello</Title>
+  <Security>Inherit</Security>
+ </CreateCourseElementFolder>
+</Message>
+
+]]></its:Data>
+                <its:Type>2</its:Type>
+            </tem:dataMessage>
+        </tem:AddMessage>
+    </soapenv:Body>
+</soapenv:Envelope>

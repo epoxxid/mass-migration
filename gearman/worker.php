@@ -1,27 +1,12 @@
 <?php
 
-require_once 'MassMigrationService.php';
+require_once '../lib/MassMigrationService.php';
+require_once '../lib/OrgApiFolderCreator.php';
 
-echo "Starting\n";
-
-# Создание нового обработчика.
-$gmworker= new GearmanWorker();
-$gmworker->addServer();
-
-// Register worker methods
-$gmworker->addFunction(MassMigrationService::TAKS_CREATE_FOLDER, 'createFolder');
-$gmworker->addFunction(MassMigrationService::TASK_CHECK_STATUS, 'checkStatus');
-
-print "Waiting for a job...\n";
-
-while($gmworker->work())
-{
-  if ($gmworker->returnCode() != GEARMAN_SUCCESS)
-  {
-    echo 'return_code: ' . $gmworker->returnCode() . "\n";
-    break;
-  }
-}
+$workerService = new GearmanWorkerService(array(
+    MassMigrationService::TASK_CREATE_FOLDER => 'createFolder',
+    MassMigrationService::TASK_CHECK_STATUS => 'checkStatus'
+));
 
 
 /**
@@ -30,10 +15,15 @@ while($gmworker->work())
  */
 function createFolder($job)
 {
-    list($id, $name) = unserialize($job->workload());
-    echo "\nNEW TASK: create folder '$name' with ID = $id\n";
+    $folder = unserialize($job->workload());
 
-    echo ">>> API REQUEST: createFolder($name)\n";
+    $id = $folder['id'];
+    $title = $folder['title'];
+
+    echo "\nNEW TASK: create folder '{$title}' with ID = {$id}\n";
+
+
+    echo ">>> API REQUEST: createFolder($title)\n";
     sleep(1);
     $qId = mt_rand(1, 100); // Imitate receiving queue item ID
     echo "<<< API RESPONSE: message enqueued ID = {$qId}\n";

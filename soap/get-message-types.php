@@ -1,9 +1,10 @@
 <?php
 
-require_once 'OrgApiClient.php';
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-$client = new OrgApiClient();
+require_once '../lib/OrgApiClient.php';
+
+$client = new OrgApiClient(true);
 $client->getMessageTypes();
-echo '<pre>';
-$client->dumpRequestXml(true);
-$client->dumpResponseXml(true);
+
