@@ -1,8 +1,7 @@
 <?php
 
 require_once '../lib/MassMigrationService.php';
-require_once '../lib/OrgApiFolderCreator.php';
-
+require_once '../lib/ApiFolderCreator.php
 $workerService = new GearmanWorkerService(array(
     MassMigrationService::TASK_CREATE_FOLDER => 'createFolder',
     MassMigrationService::TASK_CHECK_STATUS => 'checkStatus'

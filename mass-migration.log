@@ -1,0 +1,7 @@
+2019-05-26 12:20:33 | DBG | OrgApiClient::loadMessageTypes | >>> Get list of message types
+2019-05-26 12:20:40 | ERR | OrgApiClient::loadMessageTypes | An error occurred when verifying security for the message.
+2019-05-26 12:20:55 | DBG | OrgApiClient::loadMessageTypes | >>> Get list of message types
+2019-05-26 12:26:20 | DBG | OrgApiClient::loadMessageTypes | >>> Get list of message types
+2019-05-26 12:26:21 | DBG | OrgApiClient::loadMessageTypes | Fetched 45 message types
+2019-05-26 12:30:06 | DBG | OrgApiClient::loadMessageTypes | >>> Get list of message types
+2019-05-26 12:30:07 | DBG | OrgApiClient::loadMessageTypes | Fetched 45 OrgAPI Message types

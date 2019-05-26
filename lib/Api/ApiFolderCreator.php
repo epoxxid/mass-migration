@@ -1,28 +1,27 @@
 <?php
 
-require_once 'XmlHelper.php';
+require_once dirname(__DIR__) . '/Helper/XmlHelper.php';
 
-class OrgApiFolderCreator
+class ApiFolderCreator
 {
     const DEFAULT_NAME = '__Fronter_exported__';
+    const ACTION_CREATE_FOLDER = 'Create.Course.Element.Folder';
 
-    /** @var OrgApiClient */
+    /** @var ApiClient */
     private $apiClient;
 
-    /** @var bool */
-    private $debug;
+    /** @var MMLogger */
+    private $logger;
 
     /**
-     * OrgApiFolderCreator constructor.
-     * @param OrgApiClient $apiClient
-     * @param bool $debug
+     * ApiFolderCreator constructor.
+     * @param MMConfig $config
+     * @param MMLogger $logger
      */
-    public function __construct($apiClient, $debug = false)
+    public function __construct(MMConfig $config, MMLogger $logger)
     {
-        $this->apiClient = $apiClient;
-        $this->debug = $debug;
-
-        // Request available message types
+        $this->apiClient = new ApiClient($config, $logger);
+        $this->logger = $logger;
     }
 
     /**
@@ -32,39 +31,20 @@ class OrgApiFolderCreator
      */
     public function createFolder($parentSyncKey = null, array $params = array())
     {
-        $xml = $this->composeMessageXml($parentSyncKey, $params);
-        $this->apiClient->sendMessage(2, $xml);
+        try {
+            $xml = $this->composeMessageXml($parentSyncKey, $params);
 
-        if ($this->debug) {
-            echo '<pre>';
-            $this->apiClient->dumpRequestXml(true);
-            $this->apiClient->dumpResponseXml(true);
-        }
-    }
+            $folderTitle = isset($params['Title']) ? $params['Title'] : self::DEFAULT_NAME;
+            $infoMsg = "Attempt to create folder `$folderTitle`";
+            $infoMsg .= $parentSyncKey ? " in parent with sync key `$parentSyncKey`" : ' in course root';
+            $this->logger->info($infoMsg, __METHOD__);
 
-    public function createFolderObject($parentSyncKey = null, array $params = array())
-    {
-        $msg = new stdClass();
+            $queueId = $this->apiClient->sendMessage(self::ACTION_CREATE_FOLDER, $xml);
 
-        // Force sync key for the folder, TODO: Validate
-        if (isset($params['SyncKey'])) {
-            $msg->syncKeys = new \ArrayObject();
-            $syncKey = new SoapVar(
-                $params['SyncKey'],
-                XSD_STRING,
-                null,
-                null,
-                'SyncKey'
-            );
-            $msg->syncKeys->append($syncKey);
-        }
-
-        $this->apiClient->sendMessage(2, new SoapVar($msg, SOAP_ENC_OBJECT, null, null, 'Message'));
-
-        if ($this->debug) {
-            echo '<pre>';
-            $this->apiClient->dumpRequestXml(true);
-            $this->apiClient->dumpResponseXml(true);
+        } catch (ApiRequestValidationException $e) {
+            $this->logger->error($e->getMessage(), __METHOD__);
+        } catch (Throwable $e) {
+            $this->logger->error($e->getMessage(), __METHOD__);
         }
     }
 
@@ -97,14 +77,14 @@ class OrgApiFolderCreator
         if (!empty($params['CourseSyncKey'])) {
             $CreateCourseElementFolder->addChild('CourseSyncKey', $params['CourseSyncKey']);
         } else {
-            throw new \Exception('CourseSyncKey is required');
+            throw new ApiRequestValidationException('CourseSyncKey is required');
         }
 
         // TODO: Validate value
         if (!empty($params['UserSyncKey'])) {
             $CreateCourseElementFolder->addChild('UserSyncKey', $params['UserSyncKey']);
         } else {
-            throw new \Exception('UserSync key is required');
+            throw new ApiRequestValidationException('UserSync key is required');
         }
 
         // TODO: Validate value
@@ -129,7 +109,8 @@ class OrgApiFolderCreator
             $value = (string) $params['Security'];
             if (!in_array($value, $allowedValues)) {
                 $allowedValuesStr = implode(', ', $allowedValues);
-                throw new \Exception('Security value should be one of the following: ' . $allowedValuesStr);
+                $err = 'Security value should be one of the following: ' . $allowedValuesStr;
+                throw new ApiRequestValidationException($err);
             }
             $CreateCourseElementFolder->addChild('Security', $value);
         } else {
