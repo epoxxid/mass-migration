@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname(__DIR__) . '/Helper/XmlHelper.php';
+require_once dirname(__DIR__) . '/Helpers/XmlHelper.php';
 
 class ApiFolderCreator
 {
@@ -27,6 +27,7 @@ class ApiFolderCreator
     /**
      * @param null $parentSyncKey
      * @param array $params
+     * @return ApiResponse
      * @throws Exception
      */
     public function createFolder($parentSyncKey = null, array $params = array())
@@ -40,6 +41,10 @@ class ApiFolderCreator
             $this->logger->info($infoMsg, __METHOD__);
 
             $queueId = $this->apiClient->sendMessage(self::ACTION_CREATE_FOLDER, $xml);
+
+            $response = new ApiResponse(ApiResponse::STATUS_ITEM_IN_QUEUE);
+            $response->setMessageQueueId($queueId);
+            return $response;
 
         } catch (ApiRequestValidationException $e) {
             $this->logger->error($e->getMessage(), __METHOD__);

@@ -1,9 +1,9 @@
 <?php
 
 require '../lib/MMConfig.php';
-require_once '../lib/Api/ApiClient.php';
-require_once '../lib/Api/ApiFolderCreator.php';
-require_once '../lib/Logger/MMStdoutLogger.php';
+require '../lib/Api/ApiClient.php';
+require '../lib/Api/ApiFolderCreator.php';
+require '../lib/Logger/MMStdoutLogger.php';
 
 // Load configuration
 $config = new MMConfig('../config.ini');
@@ -16,10 +16,9 @@ $logger->setLevel($config->getLogLevel());
 $folderCreator = new ApiFolderCreator($config, $logger);
 
 // Create folder
-$folderCreator->createFolder(null, array(
-    'Title' => 'Parent folder',
+$result = $folderCreator->createFolder(null, array(
+    'Title' => 'Hello world',
     'Description' => 'Some folder description',
-    'CourseSyncKey' => 'course-history',
+    'CourseSyncKey' => 'course-math101',
     'UserSyncKey' => 'user_content',
 ));
-

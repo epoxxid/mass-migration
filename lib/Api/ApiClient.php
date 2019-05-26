@@ -1,8 +1,11 @@
 <?php
 
+require 'ApiResponse.php';
+
 class ApiClient
 {
     const RESPONSE_STATUS_IN_QUEUE = 'InQueue';
+    const RESPONSE_STATUS_FINISHED = 'Finished';
 
     /** @var SoapClient */
     private $soapClient;
@@ -61,8 +64,6 @@ class ApiClient
             /** @noinspection PhpUndefinedMethodInspection */
             $response = $this->soapClient->AddMessage($request);
 
-
-
             if (!property_exists($response, 'AddMessageResult')) {
                 $err = 'AddMessage() response does not have `AddMessageResult` property';
                 throw new InvalidApiResponseException($err);
@@ -80,15 +81,16 @@ class ApiClient
                 throw new InvalidApiResponseException($err);
             }
 
-            $itemQueueId = (int) $AddMessageResult->MessageId;
+            $messageQueueId = $AddMessageResult->MessageId;
+            $Status = $AddMessageResult->Status;
 
-            if ($AddMessageResult !== self::RESPONSE_STATUS_IN_QUEUE || !$itemQueueId) {
-                // TODO: Message did not processed properly
+            if (!is_numeric($messageQueueId) || $Status !== ApiResponse::STATUS_ITEM_IN_QUEUE) {
+                throw new InvalidApiResponseException('API did not processed item properly');
             }
 
-            $info = "Message added to queue with ID = $itemQueueId";
+            $info = "Message added to queue with ID = $messageQueueId";
             $this->logger->info($info, __METHOD__);
-            return $itemQueueId;
+            return $messageQueueId;
         } catch (InvalidApiResponseException $e) {
             $this->logger->error($e->getMessage(), __METHOD__);
             $this->logger->dbgXml('AddMessage request', $this->soapClient->__getLastRequest(), __METHOD__);
@@ -98,6 +100,50 @@ class ApiClient
         }
 
         return null;
+    }
+
+    public function getMessageResult($messageId)
+    {
+        try {
+            $request = new stdClass();
+            $request->messageId = (int) $messageId;
+
+            /** @noinspection PhpUndefinedMethodInspection */
+            $response = $this->soapClient->GetMessageResult($request);
+
+            $this->logger->dbgXml('GetMessageResult request', $this->soapClient->__getLastRequest(), __METHOD__);
+            $this->logger->dbgXml('GetMessageResult response', $this->soapClient->__getLastResponse(), __METHOD__);
+
+            if (!property_exists($response, 'GetMessageResultResult')) {
+                $err = 'AddMessage() response does not have `GetMessageResultResult` property';
+                throw new InvalidApiResponseException($err);
+            }
+
+            $GetMessageResultResult = $response->GetMessageResultResult;
+
+            if (!property_exists($GetMessageResultResult, 'Status')) {
+                $err = 'AddMessage() response does not have `Status` property';
+                throw new InvalidApiResponseException($err);
+            }
+
+            $Status = (string) $GetMessageResultResult->Status;
+            switch ($Status) {
+                case ApiResponse::STATUS_ITEM_IN_QUEUE:
+                    $response = new ApiResponse($Status);
+                    $response->setMessageQueueId($messageId);
+                    break;
+                case ApiResponse::STATUS_ITEM_PROCESSED:
+                    $response = new ApiResponse($Status);
+                    // TODO: Set processed item data
+                    break;
+                default:
+                    $response = new ApiResponse(ApiResponse::STATUS_REQUEST_FAILED);
+            }
+            return $response;
+        } catch (Throwable $e) {
+            $this->logger->error($e->getMessage(), __METHOD__);
+            return null;
+        }
     }
 
     /**
