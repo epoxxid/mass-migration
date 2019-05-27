@@ -2,19 +2,20 @@
 
 require 'ApiResponse.php';
 
+/**
+ * Client class to interact with Org API
+ */
 class ApiClient
 {
-    const RESPONSE_STATUS_IN_QUEUE = 'InQueue';
-    const RESPONSE_STATUS_FINISHED = 'Finished';
-
     /** @var SoapClient */
     private $soapClient;
     /** @var MMLogger */
     private $logger;
     /** @var array */
     private $messageTypes = array();
-
+    /** @var string */
     private $soapHeaderNS = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd';
+    /** @var string */
     private $msgDataNS = 'http://schemas.datacontract.org/2004/07/Itslearning.Integration.ContentImport.Services.Entities';
 
     /**
@@ -45,18 +46,22 @@ class ApiClient
     /**
      * @param string $action
      * @param string $messageXml
-     * @return bool
+     * @param int $attemptNumber
+     * @return ApiResponse
+     * @throws Exception
      */
-    public function sendMessage($action, $messageXml)
+    public function sendMessage($action, $messageXml, $attemptNumber = 1)
     {
-        $typeId = $this->getMessageTypeIdByAction($action);
-
-        if (!$typeId) {
-            $this->logger->error("Unable to determine message type ID for action `$action`", __METHOD__);
-            return false;
-        }
 
         try {
+
+            $typeId = $this->getMessageTypeIdByAction($action);
+
+            if (!$typeId) {
+                $err = "Unable to determine message type ID for action `$action`";
+                throw new OrgApiRequestException($err);
+            }
+
             $this->logger->dbg('Start sending OrgAPI message', __METHOD__);
 
             $request = $this->composeSoapMessage($typeId, $messageXml);
@@ -66,43 +71,59 @@ class ApiClient
 
             if (!property_exists($response, 'AddMessageResult')) {
                 $err = 'AddMessage() response does not have `AddMessageResult` property';
-                throw new InvalidApiResponseException($err);
+                throw new OrgApiResponseException($err);
             }
 
             $AddMessageResult = $response->AddMessageResult;
 
             if (!property_exists($AddMessageResult, 'Status')) {
                 $err = 'AddMessage() response does not have `Status` property';
-                throw new InvalidApiResponseException($err);
+                throw new OrgApiResponseException($err);
             }
 
             if (!property_exists($AddMessageResult, 'MessageId')) {
                 $err = 'AddMessage() response does not have `MessageId` property';
-                throw new InvalidApiResponseException($err);
+                throw new OrgApiResponseException($err);
             }
 
             $messageQueueId = $AddMessageResult->MessageId;
             $Status = $AddMessageResult->Status;
 
             if (!is_numeric($messageQueueId) || $Status !== ApiResponse::STATUS_ITEM_IN_QUEUE) {
-                throw new InvalidApiResponseException('API did not processed item properly');
+                throw new OrgApiResponseException('API did not processed item properly');
             }
 
-            $info = "Message added to queue with ID = $messageQueueId";
-            $this->logger->info($info, __METHOD__);
-            return $messageQueueId;
-        } catch (InvalidApiResponseException $e) {
+            $response = new ApiResponse(ApiResponse::STATUS_ITEM_IN_QUEUE);
+            $response->setMessageQueueId($messageQueueId);
+            $response->setAttemptNumber($attemptNumber);
+            return $response;
+        } catch (OrgApiResponseException $e) {
             $this->logger->error($e->getMessage(), __METHOD__);
+
+            // We dump the response XML make debug easier
             $this->logger->dbgXml('AddMessage request', $this->soapClient->__getLastRequest(), __METHOD__);
             $this->logger->dbgXml('AddMessage response', $this->soapClient->__getLastResponse(), __METHOD__);
+
+            $response = new ApiResponse(ApiResponse::STATUS_REQUEST_FAILED);
+            $response->setAttemptNumber($attemptNumber);
+            return $response;
         } catch (Throwable $e) {
             $this->logger->error($e->getMessage(), __METHOD__);
-        }
 
-        return null;
+            $response = new ApiResponse(ApiResponse::STATUS_INVALID_REQUEST);
+            $response->setExplanationMessage($e->getMessage());
+            return $response;
+        }
     }
 
-    public function getMessageResult($messageId)
+    /**
+     * Returns an actual message result
+     *
+     * @param $messageId
+     * @return ApiResponse|null
+     * @throws Exception
+     */
+    public function getMessageResult($messageId, $attemptNumber = 1)
     {
         try {
             $request = new stdClass();
@@ -111,19 +132,16 @@ class ApiClient
             /** @noinspection PhpUndefinedMethodInspection */
             $response = $this->soapClient->GetMessageResult($request);
 
-            $this->logger->dbgXml('GetMessageResult request', $this->soapClient->__getLastRequest(), __METHOD__);
-            $this->logger->dbgXml('GetMessageResult response', $this->soapClient->__getLastResponse(), __METHOD__);
-
             if (!property_exists($response, 'GetMessageResultResult')) {
                 $err = 'AddMessage() response does not have `GetMessageResultResult` property';
-                throw new InvalidApiResponseException($err);
+                throw new OrgApiResponseException($err);
             }
 
             $GetMessageResultResult = $response->GetMessageResultResult;
 
             if (!property_exists($GetMessageResultResult, 'Status')) {
                 $err = 'AddMessage() response does not have `Status` property';
-                throw new InvalidApiResponseException($err);
+                throw new OrgApiResponseException($err);
             }
 
             $Status = (string) $GetMessageResultResult->Status;
@@ -131,14 +149,28 @@ class ApiClient
                 case ApiResponse::STATUS_ITEM_IN_QUEUE:
                     $response = new ApiResponse($Status);
                     $response->setMessageQueueId($messageId);
+                    $response->setAttemptNumber($attemptNumber);
                     break;
+
                 case ApiResponse::STATUS_ITEM_PROCESSED:
                     $response = new ApiResponse($Status);
-                    // TODO: Set processed item data
+                    if (isset($GetMessageResultResult->StatusDetails)) {
+                        $response->setItemDetails($GetMessageResultResult->StatusDetails);
+                    }
                     break;
+
                 default:
-                    $response = new ApiResponse(ApiResponse::STATUS_REQUEST_FAILED);
+                    throw new OrgApiResponseException("API responded with status `$Status`");
             }
+            return $response;
+        } catch (OrgApiResponseException $e) {
+            $this->logger->dbgXml('GetMessageResult request', $this->soapClient->__getLastRequest(), __METHOD__);
+            $this->logger->dbgXml('GetMessageResult response', $this->soapClient->__getLastResponse(), __METHOD__);
+            $this->logger->error($e->getMessage(), __METHOD__);
+
+            $response = new ApiResponse(ApiResponse::STATUS_REQUEST_FAILED);
+            $response->setExplanationMessage($e->getMessage());
+            $response->setAttemptNumber($attemptNumber);
             return $response;
         } catch (Throwable $e) {
             $this->logger->error($e->getMessage(), __METHOD__);
@@ -167,20 +199,20 @@ class ApiClient
 
             if (!property_exists($response, 'GetMessageTypesResult')) {
                 $err = 'GetMessageTypes response does not have `GetMessageTypesResult` property';
-                throw new InvalidApiResponseException($err);
+                throw new OrgApiResponseException($err);
             }
 
             $result = $response->GetMessageTypesResult;
 
             if (!property_exists($result, 'DataMessageType')) {
                 $err = 'GetMessageTypes response does not have `DataMessageType` property';
-                throw new InvalidApiResponseException($err);
+                throw new OrgApiResponseException($err);
             }
 
             $types = $result->DataMessageType;
             if (!$types || !is_array($types)) {
                 $err = 'GetMessageTypes response have invalid list of types';
-                throw new InvalidApiResponseException($err);
+                throw new OrgApiResponseException($err);
             }
 
             // Build list of types
@@ -191,11 +223,11 @@ class ApiClient
             if ($num = count($this->messageTypes)) {
                 $this->logger->dbg("Fetched $num OrgAPI Message types", __METHOD__);
             } else {
-                throw new InvalidApiResponseException('No message types were loaded');
+                throw new OrgApiResponseException('No message types were loaded');
             }
             
             return true;
-        } catch (InvalidApiResponseException $e) {
+        } catch (OrgApiResponseException $e) {
             $this->logger->error($e->getMessage(), __METHOD__);
             $this->logger->dbgXml('GetMessageTypes request', $this->soapClient->__getLastRequest(), __METHOD__);
             $this->logger->dbgXml('GetMessageTypes response', $this->soapClient->__getLastResponse(), __METHOD__);

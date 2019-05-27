@@ -14,17 +14,25 @@ class ResourcesRepository
         $this->fetchDependenciesData();
     }
 
+    /**
+     * @return array
+     */
     public function getIndependentItems()
     {
-        return array_filter($this->dependencies, function($dep) {
+        $filtered = array();
+
+        foreach ($this->dependencies as $dep) {
             // Item processed already
             if (!empty($dep['syncKey']) || $dep['status'] === self::STATUS_FINISHED) {
-                return false;
+                continue;
             }
 
             // Item has no dependencies
-            if (empty($dep['dependsOn'])) return true;
+            if (empty($dep['dependsOn'])) {
+                continue;
+            }
 
+            // Check for resolved dependencies
             $isIndependent = true;
             foreach ($this->dependencies as $target) {
                 if (in_array($target['id'], $dep['dependsOn'])) {
@@ -32,8 +40,10 @@ class ResourcesRepository
                 }
             }
 
-            return $isIndependent;
-        });
+            $filtered[] = $dep;
+        }
+
+        return $filtered;
     }
 
     /**
@@ -56,26 +66,32 @@ class ResourcesRepository
             array(
                 'id' => 1,
                 'type' => 'folder',
-                'name' => 'Root',
+                'title' => 'Root',
                 'status' => null,
                 'dependsOn' => null,
-                'syncKey' => ''
+                'syncKey' => '',
+                'courseSyncKey' => 'course-history',
+                'userSyncKey' => 'user_content'
             ),
             array(
                 'id' => 2,
                 'type' => 'folder',
-                'name' => 'My Documents',
+                'title' => 'My Documents',
                 'status' => null,
                 'dependsOn' => array(1),
-                'syncKey' => ''
+                'syncKey' => '',
+                'courseSyncKey' => 'course-history',
+                'userSyncKey' => 'user_content'
             ),
             array(
                 'id' => 3,
                 'type' => 'folder',
-                'name' => 'Cars',
+                'title' => 'Cars',
                 'status' => null,
                 'dependsOn' => array(2),
-                'syncKey' => ''
+                'syncKey' => '',
+                'courseSyncKey' => 'course-history',
+                'userSyncKey' => 'user_content'
             ),
         );
     }
