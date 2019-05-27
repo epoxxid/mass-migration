@@ -1,5 +1,10 @@
 <?php
 
+require_once 'Api/ApiFolderCreator.php';
+require_once 'Tasks/CreateFolderTask.php';
+require_once 'MMServiceClient.php';
+require_once 'Exceptions/TaskInvalidDataException.php';
+
 /**
  * Gearman worker class for Mass Migration service
  */
@@ -16,6 +21,8 @@ class MMServiceWorker
     private $logger;
     /** @var ApiFolderCreator */
     private $folderCreator;
+    /** @var ApiClient */
+    private $apiClient;
 
     /**
      * @param MMConfig $config
@@ -23,6 +30,8 @@ class MMServiceWorker
      */
     public function __construct(MMConfig $config, MMLogger $logger)
     {
+        // Need to some kind of api clients manager to get rid of multiple requests
+        $this->apiClient = new ApiClient($config, $logger);
         $this->folderCreator = new ApiFolderCreator($config, $logger);
         $this->logger = $logger;
 
@@ -38,10 +47,8 @@ class MMServiceWorker
     {
         $this->logger->dbg('Gearman started! Waiting for a job...', __METHOD__);
 
-        while($this->worker->work())
-        {
-            if ($this->worker->returnCode() != GEARMAN_SUCCESS)
-            {
+        while ($this->worker->work()) {
+            if ($this->worker->returnCode() != GEARMAN_SUCCESS) {
                 $returnCode = $this->worker->returnCode();
                 $this->logger->dbg("Gearman process interrupted with code `{$returnCode}`");
                 break;
@@ -54,12 +61,13 @@ class MMServiceWorker
      */
     public function createFolder($job)
     {
-        $dep = unserialize($job->workload());
-        $taskName = "[#{$dep['id']}: CREATE FOLDER]";
-        $this->logger->dbg("Gearman has got new task $taskName");
+        $data = unserialize($job->workload());
+        $taskName = "[#{$data['id']}: CREATE FOLDER]";
+        $this->logger->dbg("Gearman has got new task $taskName", __METHOD__);
 
         try {
-            $task = new CreateFolderTask($dep);
+            $task = new CreateFolderTask($data);
+
 
             $result = $this->folderCreator->createFolder(
                 $task->getParentSyncKey(),
@@ -68,9 +76,9 @@ class MMServiceWorker
 
             if ($result->isStatusInQueue()) {
                 return serialize(array(
-                   'event' => MMServiceClient::EVENT_ITEM_ENQUEUED,
-                   'itemId' => $dep['id'],
-                   'messageQueueId' => $result->getMessageQueueId()
+                    'event' => MMServiceClient::EVENT_ITEM_ENQUEUED,
+                    'itemId' => $data['id'],
+                    'messageQueueId' => $result->getMessageQueueId()
                 ));
             }
 
@@ -82,13 +90,52 @@ class MMServiceWorker
 
         return serialize(array(
             'event' => MMServiceClient::EVENT_TASK_PROCESSING_FAILED,
-            'itemId' => $dep['id'],
+            'itemId' => $data['id'],
             'message' => "Gearman unable to accomplish task $taskName"
         ));
     }
 
+    /**
+     * @param GearmanJob $job
+     */
     public function checkStatus($job)
     {
-        $messageId = (int)unserialize($job->workload());
+        $data = unserialize($job->workload());
+        $taskName = "[#{$data['itemId']}: GET MESSAGE RESULT]";
+        $this->logger->dbg("Gearman has got new task $taskName", __METHOD__);
+
+        try {
+            if (!isset($data['messageQueueId'])) {
+                throw new TaskInvalidDataException('MessageQueueId is required');
+            }
+
+            $response = $this->apiClient->getMessageResult((int)$data['messageQueueId']);
+
+            if ($response->isStatusFinished()) {
+                $folderDetails = $response->getItemDetails();
+                return serialize(array(
+                   'event' => MMServiceClient::EVENT_FOLDER_CREATED,
+                   'itemId' => $data['itemId'],
+                   'syncKey' => $folderDetails->SyncKey
+                ));
+            }
+
+            if ($response->isStatusInQueue()) {
+                return serialize(array(
+                    'event' => MMServiceClient::EVENT_ITEM_ENQUEUED,
+                    'itemId' => $data['id'],
+                    'messageQueueId' => $data['messageQueueId']
+                ));
+            }
+
+        } catch (\Throwable $e) {
+            $this->logger->error($e->getMessage(), __METHOD__);
+        }
+
+        return serialize(array(
+            'event' => MMServiceClient::EVENT_TASK_PROCESSING_FAILED,
+            'itemId' => $data['id'],
+            'message' => "Gearman unable to accomplish task $taskName"
+        ));
     }
 }

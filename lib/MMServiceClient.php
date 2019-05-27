@@ -1,7 +1,7 @@
 <?php
 
-require 'MMServiceWorker.php';
-require 'ResourcesRepository.php';
+require_once 'MMServiceWorker.php';
+require_once 'ResourcesRepository.php';
 
 /**
  * Gearman client for Mass Migration service
@@ -46,7 +46,8 @@ class MMServiceClient
         $this->handleResolvedDependencies();
 
         if (!$this->gearmanClient->runTasks()) {
-            $this->log("Error occurred: {$this->gearmanClient->error()}");
+            $err = $this->gearmanClient->error();
+            $this->logger->error("German client failed: $err", __METHOD__);
             exit;
         }
 
@@ -62,7 +63,7 @@ class MMServiceClient
         $this->logger->dbg('Finished processing of task', __METHOD__);
         switch ($data['event']) {
             case self::EVENT_ITEM_ENQUEUED:
-                $this->onItemEnqueued($data['itemId'], $data['itemQueueId']);
+                $this->onItemEnqueued($data['itemId'], $data['messageQueueId']);
                 break;
             case self::EVENT_FOLDER_CREATED:
                 $this->onFolderCreated($data['itemId'], $data['syncKey']);
@@ -79,7 +80,7 @@ class MMServiceClient
      */
     private function onFolderCreated($itemId, $syncKey)
     {
-        $this->logger->info("Folder created with syncKey = {$syncKey}");
+        $this->logger->info("Folder created with syncKey = {$syncKey}", __METHOD__);
         // Update database record
         $this->resourcesRepository->updateDependencyItem($itemId, $syncKey);
         // Check for resolved dependencies
@@ -88,16 +89,19 @@ class MMServiceClient
 
     /**
      * @param $itemId
-     * @param $itemQueueId
+     * @param $messageQueueId
      */
-    private function onItemEnqueued($itemId, $itemQueueId)
+    private function onItemEnqueued($itemId, $messageQueueId)
     {
         // Take pause to void possibility of overloading the Gearman
         sleep(1);
 
-        $taskData = serialize(array($itemId, $itemQueueId));
+        $taskData = serialize(array(
+            'itemId' => $itemId,
+            'messageQueueId' => $messageQueueId
+        ));
         $this->gearmanClient->addTask(MMServiceWorker::TASK_CHECK_STATUS, $taskData);
-        $this->logger->dbg("Added task to check status of item with ID = $itemId");
+        $this->logger->dbg("Adding Gearman task [#$itemId: GET MESSAGE RESULT]", __METHOD__);
     }
 
     /**
@@ -136,7 +140,9 @@ class MMServiceClient
         $taskData = serialize($item);
         switch ($item['type']) {
             case 'folder':
-                $this->logger->dbg("Adding task to Gearman for creating folder with name {$item['title']}");
+                $msg = "Adding task to Gearman for creating folder with name {$item['title']}";
+                $this->logger->dbg($msg, __METHOD__);
+
                 $this->gearmanClient->addTask(MMServiceWorker::TASK_CREATE_FOLDER, $taskData);
                 break;
         }

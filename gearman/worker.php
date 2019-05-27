@@ -11,6 +11,6 @@ $config = new MMConfig('../config.ini');
 $logger = new MMStdoutLogger();
 $logger->setLevel($config->getLogLevel());
 
-
 $worker = new MMServiceWorker($config, $logger);
+$worker->start();
 

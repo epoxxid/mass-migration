@@ -14,7 +14,20 @@ class MMStdoutLogger extends MMLogger
      */
     protected function addLogRecord($type, $msg, $module)
     {
-        echo "[$type] $module | $msg\n";
+        $typeStr = "[$type]";
+        switch ($type) {
+            case 'ERR':
+                $typeStr = "\e[0;31m{$typeStr}\e[0m";
+                break;
+            case 'INF':
+                $typeStr = "\e[0;35m{$typeStr}\e[0m";
+                break;
+            case 'DBG':
+                $typeStr = "\e[0;33m{$typeStr}\e[0m";
+                break;
+        }
+
+        echo "$typeStr \e[1;34m$module\e[0m $msg\n";
         return true;
     }
 }

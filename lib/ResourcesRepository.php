@@ -29,6 +29,7 @@ class ResourcesRepository
 
             // Item has no dependencies
             if (empty($dep['dependsOn'])) {
+                $filtered[] = $dep;
                 continue;
             }
 
@@ -36,11 +37,17 @@ class ResourcesRepository
             $isIndependent = true;
             foreach ($this->dependencies as $target) {
                 if (in_array($target['id'], $dep['dependsOn'])) {
-                    $isIndependent = $isIndependent && !empty($target['syncKey']);
+                    if (empty($target['syncKey'])) {
+                        $isIndependent = false;
+                        break;
+                    }
+                    $dep['parentSyncKey'] = $target['syncKey'];
                 }
             }
 
-            $filtered[] = $dep;
+            if ($isIndependent) {
+                $filtered[] = $dep;
+            }
         }
 
         return $filtered;

@@ -1,20 +1,18 @@
 <?php
 
-require 'ApiResponse.php';
+require_once 'MMSoapClient.php';
+require_once 'ApiResponse.php';
 
 /**
  * Client class to interact with Org API
  */
 class ApiClient
 {
-    /** @var SoapClient */
+    /** @var MMSoapClient */
     private $soapClient;
     /** @var MMLogger */
     private $logger;
-    /** @var array */
-    private $messageTypes = array();
-    /** @var string */
-    private $soapHeaderNS = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd';
+
     /** @var string */
     private $msgDataNS = 'http://schemas.datacontract.org/2004/07/Itslearning.Integration.ContentImport.Services.Entities';
 
@@ -24,23 +22,14 @@ class ApiClient
      */
     public function __construct(MMConfig $config, MMLogger $logger)
     {
-        $this->logger = $logger;
-        $this->initSoapClient($config);
-    }
-
-    /**
-     * @param MMConfig $config
-     */
-    private function initSoapClient(MMConfig $config)
-    {
         try {
-            $clientConfig = array('trace' => $config->getLogLevel() !== 'off');
-            $this->soapClient = new SoapClient($config->getWSDLUri(), $clientConfig);
-            $this->soapClient->__setSoapHeaders($this->composeSoapHeader($config));
-            $this->loadMessageTypes();
+            // Singleton to prevent multiple init data loading
+            $this->soapClient = MMSoapClient::getInstance($config, $logger);
         } catch (Throwable $e) {
-            $this->logger->error($e->getMessage(), __METHOD__);
+            $err = 'Unable to instantiate SOAP client: ' . $e->getMessage();
+            $logger->error($err, __METHOD__);
         }
+        $this->logger = $logger;
     }
 
     /**
@@ -52,10 +41,8 @@ class ApiClient
      */
     public function sendMessage($action, $messageXml, $attemptNumber = 1)
     {
-
         try {
-
-            $typeId = $this->getMessageTypeIdByAction($action);
+            $typeId = $this->soapClient->getMessageTypeIdByAction($action);
 
             if (!$typeId) {
                 $err = "Unable to determine message type ID for action `$action`";
@@ -66,7 +53,6 @@ class ApiClient
 
             $request = $this->composeSoapMessage($typeId, $messageXml);
 
-            /** @noinspection PhpUndefinedMethodInspection */
             $response = $this->soapClient->AddMessage($request);
 
             if (!property_exists($response, 'AddMessageResult')) {
@@ -117,19 +103,17 @@ class ApiClient
     }
 
     /**
-     * Returns an actual message result
-     *
-     * @param $messageId
-     * @return ApiResponse|null
+     * @param int $messageId
+     * @param int $attemptNumber
+     * @return ApiResponse
      * @throws Exception
      */
     public function getMessageResult($messageId, $attemptNumber = 1)
     {
         try {
             $request = new stdClass();
-            $request->messageId = (int) $messageId;
+            $request->messageId = (int)$messageId;
 
-            /** @noinspection PhpUndefinedMethodInspection */
             $response = $this->soapClient->GetMessageResult($request);
 
             if (!property_exists($response, 'GetMessageResultResult')) {
@@ -144,7 +128,7 @@ class ApiClient
                 throw new OrgApiResponseException($err);
             }
 
-            $Status = (string) $GetMessageResultResult->Status;
+            $Status = (string)$GetMessageResultResult->Status;
             switch ($Status) {
                 case ApiResponse::STATUS_ITEM_IN_QUEUE:
                     $response = new ApiResponse($Status);
@@ -154,8 +138,11 @@ class ApiClient
 
                 case ApiResponse::STATUS_ITEM_PROCESSED:
                     $response = new ApiResponse($Status);
-                    if (isset($GetMessageResultResult->StatusDetails)) {
-                        $response->setItemDetails($GetMessageResultResult->StatusDetails);
+                    if (!empty($GetMessageResultResult->StatusDetails)) {
+                        if (!empty($GetMessageResultResult->StatusDetails->DataMessageStatusDetail)) {
+                            $dataObject = $GetMessageResultResult->StatusDetails->DataMessageStatusDetail;
+                            $response->setItemDetails($dataObject);
+                        }
                     }
                     break;
 
@@ -174,111 +161,11 @@ class ApiClient
             return $response;
         } catch (Throwable $e) {
             $this->logger->error($e->getMessage(), __METHOD__);
-            return null;
+
+            $response = new ApiResponse(ApiResponse::STATUS_REQUEST_FAILED);
+            $response->setExplanationMessage($e->getMessage());
+            return $response;
         }
-    }
-
-    /**
-     * Fetch from OrgAPI list of available message types
-     *
-     * @return bool
-     */
-    private function loadMessageTypes()
-    {
-        $this->logger->dbg('Get list of message types', __METHOD__);
-
-        // Prevent multiple request to message type loader
-        if (count($this->messageTypes)) {
-            $this->logger->dbg('List of message types already loaded', __METHOD__);
-            return true;
-        }
-
-        try {
-            /** @noinspection PhpUndefinedMethodInspection */
-            $response = $this->soapClient->GetMessageTypes();
-
-            if (!property_exists($response, 'GetMessageTypesResult')) {
-                $err = 'GetMessageTypes response does not have `GetMessageTypesResult` property';
-                throw new OrgApiResponseException($err);
-            }
-
-            $result = $response->GetMessageTypesResult;
-
-            if (!property_exists($result, 'DataMessageType')) {
-                $err = 'GetMessageTypes response does not have `DataMessageType` property';
-                throw new OrgApiResponseException($err);
-            }
-
-            $types = $result->DataMessageType;
-            if (!$types || !is_array($types)) {
-                $err = 'GetMessageTypes response have invalid list of types';
-                throw new OrgApiResponseException($err);
-            }
-
-            // Build list of types
-            foreach ($types as $type) {
-                $this->messageTypes[$type->Name] = $type->Identifier;
-            }
-
-            if ($num = count($this->messageTypes)) {
-                $this->logger->dbg("Fetched $num OrgAPI Message types", __METHOD__);
-            } else {
-                throw new OrgApiResponseException('No message types were loaded');
-            }
-            
-            return true;
-        } catch (OrgApiResponseException $e) {
-            $this->logger->error($e->getMessage(), __METHOD__);
-            $this->logger->dbgXml('GetMessageTypes request', $this->soapClient->__getLastRequest(), __METHOD__);
-            $this->logger->dbgXml('GetMessageTypes response', $this->soapClient->__getLastResponse(), __METHOD__);
-        } catch (Throwable $e) {
-            $this->logger->error($e->getMessage(), __METHOD__);
-        }
-        
-        return false;
-    }
-
-    /**
-     * Build and return valid SOAP header
-     *
-     * @param MMConfig $config
-     * @return SoapHeader
-     */
-    private function composeSoapHeader(MMConfig $config)
-    {
-        $userName = new SoapVar(
-            $config->getApiUserName(),
-            XSD_STRING,
-            null,
-            null,
-            'Username',
-            $this->soapHeaderNS
-        );
-
-        $password = new SoapVar(
-            $config->getApiPassword(),
-            XSD_STRING,
-            null,
-            null,
-            'Password',
-            $this->soapHeaderNS
-        );
-
-        $token = new SoapVar(
-            array($userName, $password),
-            SOAP_ENC_OBJECT,
-            null,
-            null,
-            'UsernameToken',
-            $this->soapHeaderNS
-        );
-
-        return new SoapHeader(
-            $this->soapHeaderNS,
-            'Security',
-            new SoapVar(array($token), SOAP_ENC_OBJECT),
-            '1'
-        );
     }
 
     /**
@@ -320,17 +207,5 @@ class ApiClient
         );
 
         return $request;
-    }
-
-    /**
-     * @param $action
-     * @return int|null
-     */
-    private function getMessageTypeIdByAction($action)
-    {
-        if (isset($this->messageTypes[$action])) {
-            return (int)$this->messageTypes[$action];
-        }
-        return null;
     }
 }

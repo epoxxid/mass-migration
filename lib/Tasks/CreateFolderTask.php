@@ -1,5 +1,7 @@
 <?php
 
+require 'MMTask.php';
+
 /**
  * Mass Migration task to create folder
  */
