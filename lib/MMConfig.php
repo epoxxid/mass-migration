@@ -4,6 +4,7 @@
 class MMConfig
 {
     private $wsdlUri = 'https://f19-fronter.itslbeta.com:4421/DataService.svc?wsdl';
+    private $fileStreamWsdlUri = 'https://f19-fronter.itslbeta.com:4421/FileStreamService.svc?wsdl';
     private $apiUserName = '88b7e536-249a-4b65-a898-7e81db34ba9a';
     private $apiPassword = '89f9577b-f693-49c0-840d-29a1338f1bfd';
     private $logLevel = 'error';
@@ -18,6 +19,11 @@ class MMConfig
     public function getWSDLUri()
     {
         return (string) $this->wsdlUri;
+    }
+
+    public function getFileStreamWSDLUri()
+    {
+        return (string) $this->fileStreamWsdlUri;
     }
 
     public function getApiUserName()

@@ -39,7 +39,7 @@ class MMSoapClient extends SoapClient
     public function __construct(MMConfig $config, MMLogger $logger)
     {
         $this->logger = $logger;
-        parent::__construct($config->getWSDLUri(), array(
+        parent::__construct($config->getFileStreamWSDLUri(), array(
             'trace' => $config->getLogLevel() !== 'off'
         ));
         $this->initHeaders($config);
