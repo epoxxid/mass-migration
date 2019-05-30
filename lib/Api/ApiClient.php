@@ -168,6 +168,13 @@ class ApiClient
         }
     }
 
+    public function uploadFile($filePath)
+    {
+        $request = $this->composeUploadFileRequest($filePath);
+        
+
+    }
+    
     /**
      * Wrap given data into SOAP Message
      *
@@ -207,5 +214,18 @@ class ApiClient
         );
 
         return $request;
+    }
+    
+    public function composeUploadFileRequest($filePath)
+    {
+        $Content = 'Hello';
+        
+        $request = new stdClass();
+        $request->StreamMessage = new SoapVar(
+            $Content  
+        );
+        
+        
+        
     }
 }
