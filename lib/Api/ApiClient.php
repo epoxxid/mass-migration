@@ -102,6 +102,17 @@ class ApiClient
         }
     }
 
+    public function uploadFile($xml) {
+
+        return $this->soapClient->UploadFile($xml);
+
+    }
+
+    public function getLastRequest() {
+
+        return $this->soapClient->__getLastRequest();
+
+    }
     /**
      * @param int $messageId
      * @param int $attemptNumber
@@ -204,6 +215,31 @@ class ApiClient
             null,
             'dataMessage',
             $this->msgDataNS
+        );
+
+        return $request;
+    }
+
+    private function composeUploadContent()
+    {
+        $content = new stdClass();
+        $content->Content = new SoapVar(
+            '<inc:Include href="cid:Lavrov1.jpg" xmlns:inc="http://www.w3.org/2004/08/xop/include"/>',
+            XSD_ANYXML,
+            null,
+            null,
+            'Content',
+            ''
+        );
+
+        $request = new stdClass();
+        $request->StreamMessage = new SoapVar(
+            $content,
+            SOAP_ENC_OBJECT,
+            null,
+            null,
+            'StreamMessage',
+            'http://tempuri.org/'
         );
 
         return $request;

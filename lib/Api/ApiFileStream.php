@@ -31,6 +31,7 @@ class ApiFileStream
 
     public function uploadFile()
     {
+
 //        try {
 //            $xml = $this->composeMessageXml($parentSyncKey, $params);
 //
@@ -56,43 +57,31 @@ class ApiFileStream
 //            throw $e;
 //        }
 
-        $file = __DIR__ . '/../../files/Lavrov1.jpg';
-
-        // First Example
-        $encodedFile = $this->getDataURI($file);
-        $content =  str_replace(':', '', $encodedFile);
-        $content = str_replace('%', '', $content);
-        $content = str_replace('?', '', $content);
-
-
-        $parameters = [
-            'ExtensionId' => 5000,
-            'Name' => 'Lavrov1.jpg',
-            'Content' => $content,
-        ];
+//        $file = __DIR__ . '/../../files/Lavrov1.jpg';
+//
+//        // First Example
+//        $encodedFile = $this->getDataURI($file);
+//        $content =  str_replace(':', '', $encodedFile);
+//        $content = str_replace('%', '', $content);
+//        $content = str_replace('?', '', $content);
+//
+//
+//        $parameters = [
+//            'Content' => $content,
+//        ];
 //        echo ($return = $this->upload($data)) ? "File Uploaded : $return bytes"."\n" : "Error Uploading Files";
 
+        $raw = '<StreamMessage xmlns="http://tempuri.org/"><Content><inc:Include href="cid:Lavrov1.jpg" xmlns:inc="http://www.w3.org/2004/08/xop/include"/></Content></StreamMessage>';
+        $xml = new SimpleXMLElement($raw);
+
         try {
-            $ns = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd';
-            $headerbody = array('UsernameKey'=>array('Username'=>$UserID,
-                'Password'=>$Pwd));
+            $this->apiClient->uploadFile($xml);
 
-            $header = new SOAPHeader($ns, 'RequestorCredentials', $headerbody);
-            $client = new SoapClient("https://f19-fronter.itslbeta.com:4421/FileStreamService.svc?wsdl");
-//            $xmlRequest = file_get_contents(__DIR__ . '/../../orgapi-xml-examples/UploadFile.xml');
-            $func = $client->__getFunctions();
-//            print_r($func);
-//            $params = '<Content>
-//                <inc:Include href="cid:Lavrov1.jpg" xmlns:inc="http://www.w3.org/2004/08/xop/include"/>
-//            </Content>';
-
-            $upl = $client->UploadFile($parameters);
-            echo $upl . "\n";
-//            $response = $client->__doRequest($xmlRequest, 'f19-fronter.itslbeta.com:4421', 'UploadFile', 1);
-//            echo $response;
         } catch (SOAPFault $f) {
             print_r($f) . "\n";
         }
+
+        echo  XmlHelper::formatXml(($this->apiClient->getLastRequest()));
 
     }
 
@@ -108,79 +97,4 @@ class ApiFileStream
         return base64_encode(file_get_contents($image));
 //                mime_content_type($image) : $mime)  .
     }
-
-    /**
-     * Compose and return valid XML string
-     *
-     * @param string|null $parentSyncKey
-     * @param array $params
-     * @return string
-     *
-     * @throws OrgApiRequestException
-     */
-    private function composeMessageXml($parentSyncKey, array $params)
-    {
-        $msg = new SimpleXMLElement('<Message xmlns="urn:message-schema"/>');
-
-        // Force sync key for the folder
-        if (isset($params['SyncKey'])) {
-            $syncKeys = $msg->addChild('SyncKeys');
-            $syncKeys->addChild('SyncKey', $params['SyncKey']);
-        }
-
-        $CreateCourseElementFolder = $msg->addChild('CreateCourseElementFolder');
-
-        // TODO: Validate value
-        if (!empty($params['CourseSyncKey'])) {
-            $CreateCourseElementFolder->addChild('CourseSyncKey', $params['CourseSyncKey']);
-        } else {
-            throw new OrgApiRequestException('CourseSyncKey is required');
-        }
-
-        // TODO: Validate value
-        if ($parentSyncKey) {
-            $CreateCourseElementFolder->addChild('ParentSyncKey', $parentSyncKey);
-        }
-
-        // TODO: Validate value
-        if (!empty($params['UserSyncKey'])) {
-            $CreateCourseElementFolder->addChild('UserSyncKey', $params['UserSyncKey']);
-        } else {
-            throw new OrgApiRequestException('UserSync key is required');
-        }
-
-        // TODO: Validate value
-        if (!empty($params['Title'])) {
-            $CreateCourseElementFolder->addChild('Title', $params['Title']);
-        } else {
-            $CreateCourseElementFolder->addChild('Title', self::DEFAULT_NAME);
-        }
-
-        if (!empty($params['Description'])) {
-            $CreateCourseElementFolder->addChild('Description', (string)$params['Description']);
-        }
-
-        // True by default
-        if (isset($params['Active'])) {
-            $boolValue = $params['Active'] ? 'true' : 'false';
-            $CreateCourseElementFolder->addChild('Active', $boolValue);
-        }
-
-        $allowedValues = array('Inherit', 'Secure', 'Locked');
-        if (!empty($params['Security'])) {
-            $value = (string)$params['Security'];
-            if (!in_array($value, $allowedValues)) {
-                $allowedValuesStr = implode(', ', $allowedValues);
-                $err = 'Security value should be one of the following: ' . $allowedValuesStr;
-                throw new OrgApiRequestException($err);
-            }
-            $CreateCourseElementFolder->addChild('Security', $value);
-        } else {
-            // 'Inherit by default
-            $CreateCourseElementFolder->addChild('Security', $allowedValues[0]);
-        }
-
-        return XmlHelper::convertToPlainXml($msg);
-    }
-
 }

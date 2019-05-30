@@ -72,8 +72,35 @@ class MMSoapClient extends SoapClient
             self::$soapHeaderNS
         );
 
+        $extensionId = new SoapVar(
+            5000,
+            XSD_STRING,
+            null,
+            null,
+            'ExtensionId',
+            'http://tempuri.org/'
+        );
+
+        $name = new SoapVar(
+            'Lavrov1.jpg',
+            XSD_STRING,
+            null,
+            null,
+            'Name',
+            'http://tempuri.org/'
+        );
+
         $token = new SoapVar(
             array($userName, $password),
+            SOAP_ENC_OBJECT,
+            null,
+            null,
+            'UsernameToken',
+            self::$soapHeaderNS
+        );
+
+        $security = new SoapVar(
+            $token,
             SOAP_ENC_OBJECT,
             null,
             null,
@@ -84,9 +111,10 @@ class MMSoapClient extends SoapClient
         $header = new SoapHeader(
             self::$soapHeaderNS,
             'Security',
-            new SoapVar(array($token), SOAP_ENC_OBJECT),
+            new SoapVar(array($security, $extensionId, $name), SOAP_ENC_OBJECT),
             '1'
         );
+
         return $this->__setSoapHeaders($header);
     }
 
