@@ -13,4 +13,4 @@ $logger->setLevel('debug');
 
 // Perform request
 $uploader = new ApiFileUploader($config, $logger);
-$uploader->uploadFile('/path/to/some/file');
+$uploader->uploadFile('Lavrov1.jpg');

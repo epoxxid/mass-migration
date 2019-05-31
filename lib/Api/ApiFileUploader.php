@@ -46,20 +46,36 @@ class ApiFileUploader
             $request = new stdClass();
             $request->Content = new SoapVar($Content, SOAP_ENC_OBJECT);
 
+            $attachment = new ImageObj(__DIR__ . '/../../files/'.$fileName);
+            $param = new SoapVar($attachment, SOAP_ENC_OBJECT, "attachment");
+            $param = new SoapParam($param, "param");
+
             /** @noinspection PhpUndefinedMethodInspection */
             $this->apiClient->UploadFile($request);
-        } catch (\Throwable $e) {
-            $this->logger->error($e->getMessage(), __METHOD__);
-        }
 
-        $this->logger->dbgXml(XmlHelper::formatXml($this->apiClient->__getLastRequest()), __METHOD__);
-        $this->logger->dbgXml($this->apiClient->__getLastResponse(), __METHOD__);
+        } catch (\Throwable $e) {
+//            $this->logger->error($e->getMessage(), __METHOD__);.
+            print_r($e);
+        }
+//        $this->logger->dbgXml(XmlHelper::formatXml($this->apiClient->__getLastRequest()), __METHOD__);
+//        $this->logger->dbgXml($this->apiClient->__getLastResponse(), __METHOD__);
     }
+
 
     private function initApiClient($fileName)
     {
         $this->logger->dbg('Init API client', __METHOD__);
-        $this->apiClient = new SoapClient($this->wsdl, array('trace' => 1));
+        $this->apiClient = new SoapClient($this->wsdl, array('trace'=>1, 'stream_context' =>
+            stream_context_create(array('http'=>array(
+                'header'=> 'Accept-Encoding: gzip,deflate'.
+                    'SOAPAction: http://tempuri.org/IFileStreamService/UploadFile'.
+                    'Content-Type: image/jpeg; name=Lavrov1.jpg'.
+                    'Content-Transfer-Encoding: binary'.
+                    'Content-ID: <Lavrov1.jpg>'.
+                    'Content-Disposition: attachment; name="Lavrov1.jpg"; filename="Lavrov1.jpg'.
+                    'MIME-Version: 1.0'.
+                    'Content-Length: 128611'
+            )))));
         $this->initHeaders($fileName);
     }
 
@@ -122,5 +138,22 @@ class ApiFileUploader
             $extensionHeader,
             $nameHeader
         ));
+    }
+}
+
+class ImageObj{
+    function __construct($file, $mime = "") {
+        $this->file = $file;
+        $this->name = basename($file);
+        if (function_exists('mime_content_type')) {
+            $this->mime = mime_content_type($file);
+        } elseif (function_exists('finfo_open')) {
+            $this->mime = finfo_file(finfo_open(FILEINFO_MIME_TYPE), $file);
+        } else {
+            $this->mime = $mime;
+        }
+
+        $this->encoding = "base64";
+        $this->data = base64_encode(file_get_contents($file));
     }
 }
