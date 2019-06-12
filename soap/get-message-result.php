@@ -10,4 +10,4 @@ $logger = new MMStdoutLogger();
 $logger->setLevel($config->getLogLevel());
 
 $client = new ApiClient($config, $logger);
-$result = $client->getMessageResult(13330);
+$result = $client->getMessageResult(13334);

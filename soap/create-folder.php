@@ -17,8 +17,8 @@ $folderCreator = new ApiFolderCreator($config, $logger);
 
 // Create folder
 $result = $folderCreator->createFolder(null, array(
-    'Title' => 'Hello world',
+    'Title' => 'Some folder',
     'Description' => 'Some folder description',
-    'CourseSyncKey' => 'course-math101',
+    'CourseSyncKey' => 'course-history',
     'UserSyncKey' => 'user_content',
 ));
