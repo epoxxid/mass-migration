@@ -1,0 +1,519 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:soapui-project id="89b43315-08e7-4e48-a67f-2c63e87128cf" activeEnvironment="Default" name="ITSL OrgApi" resourceRoot="" soapui-version="5.5.0" xmlns:con="http://eviware.com/soapui/config"><con:settings/><con:interface xsi:type="con:WsdlInterface" id="d16c1f40-5ae3-4468-b264-81baf2851af7" wsaVersion="NONE" name="BasicHttpBinding_IDataService" type="wsdl" bindingName="{http://tempuri.org/}BasicHttpBinding_IDataService" soapVersion="1_1" anonymous="optional" definition="https://f19-fronter.itslbeta.com:4421/DataService.svc?wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="https://f19-fronter.itslbeta.com:4421/DataService.svc?wsdl"><con:part><con:url>https://f19-fronter.itslbeta.com:4421/DataService.svc?wsdl</con:url><con:content><![CDATA[<wsdl:definitions name="DataService" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://tempuri.org/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/">
+  <wsp:Policy wsu:Id="BasicHttpBinding_IDataService_policy">
+    <wsp:ExactlyOne>
+      <wsp:All>
+        <sp:TransportBinding xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:TransportToken>
+              <wsp:Policy>
+                <sp:HttpsToken RequireClientCertificate="false"/>
+              </wsp:Policy>
+            </sp:TransportToken>
+            <sp:AlgorithmSuite>
+              <wsp:Policy>
+                <sp:Basic256/>
+              </wsp:Policy>
+            </sp:AlgorithmSuite>
+            <sp:Layout>
+              <wsp:Policy>
+                <sp:Lax/>
+              </wsp:Policy>
+            </sp:Layout>
+            <sp:IncludeTimestamp/>
+          </wsp:Policy>
+        </sp:TransportBinding>
+        <sp:SignedSupportingTokens xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:UsernameToken sp:IncludeToken="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy/IncludeToken/AlwaysToRecipient">
+              <wsp:Policy>
+                <sp:WssUsernameToken10/>
+              </wsp:Policy>
+            </sp:UsernameToken>
+          </wsp:Policy>
+        </sp:SignedSupportingTokens>
+        <sp:Wss10 xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy/>
+        </sp:Wss10>
+      </wsp:All>
+    </wsp:ExactlyOne>
+  </wsp:Policy>
+  <wsdl:types>
+    <xsd:schema targetNamespace="http://tempuri.org/Imports">
+      <xsd:import schemaLocation="https://f19-fronter.itslbeta.com:4421/DataService.svc?xsd=xsd0" namespace="http://tempuri.org/"/>
+      <xsd:import schemaLocation="https://f19-fronter.itslbeta.com:4421/DataService.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/"/>
+      <xsd:import schemaLocation="https://f19-fronter.itslbeta.com:4421/DataService.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/Itslearning.Integration.ContentImport.Services.Entities"/>
+      <xsd:import schemaLocation="https://f19-fronter.itslbeta.com:4421/DataService.svc?xsd=xsd3" namespace="http://schemas.datacontract.org/2004/07/Itslearning.Integration.ContentImport.Model.Entities"/>
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="IDataService_AddMessage_InputMessage">
+    <wsdl:part name="parameters" element="tns:AddMessage"/>
+  </wsdl:message>
+  <wsdl:message name="IDataService_AddMessage_OutputMessage">
+    <wsdl:part name="parameters" element="tns:AddMessageResponse"/>
+  </wsdl:message>
+  <wsdl:message name="IDataService_GetMessageResult_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetMessageResult"/>
+  </wsdl:message>
+  <wsdl:message name="IDataService_GetMessageResult_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetMessageResultResponse"/>
+  </wsdl:message>
+  <wsdl:message name="IDataService_GetMessageTypes_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetMessageTypes"/>
+  </wsdl:message>
+  <wsdl:message name="IDataService_GetMessageTypes_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetMessageTypesResponse"/>
+  </wsdl:message>
+  <wsdl:message name="IDataService_GetExtensions_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetExtensions"/>
+  </wsdl:message>
+  <wsdl:message name="IDataService_GetExtensions_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetExtensionsResponse"/>
+  </wsdl:message>
+  <wsdl:portType name="IDataService">
+    <wsdl:operation name="AddMessage">
+      <wsdl:input wsaw:Action="http://tempuri.org/IDataService/AddMessage" message="tns:IDataService_AddMessage_InputMessage"/>
+      <wsdl:output wsaw:Action="http://tempuri.org/IDataService/AddMessageResponse" message="tns:IDataService_AddMessage_OutputMessage"/>
+    </wsdl:operation>
+    <wsdl:operation name="GetMessageResult">
+      <wsdl:input wsaw:Action="http://tempuri.org/IDataService/GetMessageResult" message="tns:IDataService_GetMessageResult_InputMessage"/>
+      <wsdl:output wsaw:Action="http://tempuri.org/IDataService/GetMessageResultResponse" message="tns:IDataService_GetMessageResult_OutputMessage"/>
+    </wsdl:operation>
+    <wsdl:operation name="GetMessageTypes">
+      <wsdl:input wsaw:Action="http://tempuri.org/IDataService/GetMessageTypes" message="tns:IDataService_GetMessageTypes_InputMessage"/>
+      <wsdl:output wsaw:Action="http://tempuri.org/IDataService/GetMessageTypesResponse" message="tns:IDataService_GetMessageTypes_OutputMessage"/>
+    </wsdl:operation>
+    <wsdl:operation name="GetExtensions">
+      <wsdl:input wsaw:Action="http://tempuri.org/IDataService/GetExtensions" message="tns:IDataService_GetExtensions_InputMessage"/>
+      <wsdl:output wsaw:Action="http://tempuri.org/IDataService/GetExtensionsResponse" message="tns:IDataService_GetExtensions_OutputMessage"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="BasicHttpBinding_IDataService" type="tns:IDataService">
+    <wsp:PolicyReference URI="#BasicHttpBinding_IDataService_policy"/>
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="AddMessage">
+      <soap:operation soapAction="http://tempuri.org/IDataService/AddMessage" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMessageResult">
+      <soap:operation soapAction="http://tempuri.org/IDataService/GetMessageResult" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMessageTypes">
+      <soap:operation soapAction="http://tempuri.org/IDataService/GetMessageTypes" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetExtensions">
+      <soap:operation soapAction="http://tempuri.org/IDataService/GetExtensions" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="DataService">
+    <wsdl:port name="BasicHttpBinding_IDataService" binding="tns:BasicHttpBinding_IDataService">
+      <soap:address location="https://f19-fronter.itslbeta.com:4421/DataService.svc"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part><con:part><con:url>https://f19-fronter.itslbeta.com:4421/DataService.svc?xsd=xsd0</con:url><con:content><![CDATA[<xs:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://tempuri.org/">
+  <xs:import schemaLocation="https://f19-fronter.itslbeta.com:4421/DataService.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/Itslearning.Integration.ContentImport.Services.Entities"/>
+  <xs:element name="AddMessage">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="dataMessage" nillable="true" type="q1:DataMessage" xmlns:q1="http://schemas.datacontract.org/2004/07/Itslearning.Integration.ContentImport.Services.Entities"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="AddMessageResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="AddMessageResult" nillable="true" type="q2:DataMessageResult" xmlns:q2="http://schemas.datacontract.org/2004/07/Itslearning.Integration.ContentImport.Services.Entities"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetMessageResult">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="messageId" type="xs:int"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetMessageResultResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="GetMessageResultResult" nillable="true" type="q3:DataMessageResult" xmlns:q3="http://schemas.datacontract.org/2004/07/Itslearning.Integration.ContentImport.Services.Entities"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetMessageTypes">
+    <xs:complexType>
+      <xs:sequence/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetMessageTypesResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="GetMessageTypesResult" nillable="true" type="q4:ArrayOfDataMessageType" xmlns:q4="http://schemas.datacontract.org/2004/07/Itslearning.Integration.ContentImport.Services.Entities"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetExtensions">
+    <xs:complexType>
+      <xs:sequence/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetExtensionsResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="GetExtensionsResult" nillable="true" type="q5:ArrayOfExtension" xmlns:q5="http://schemas.datacontract.org/2004/07/Itslearning.Integration.ContentImport.Services.Entities"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>]]></con:content><con:type>http://www.w3.org/2001/XMLSchema</con:type></con:part><con:part><con:url>https://f19-fronter.itslbeta.com:4421/DataService.svc?xsd=xsd2</con:url><con:content><![CDATA[<xs:schema elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/Itslearning.Integration.ContentImport.Services.Entities" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://schemas.datacontract.org/2004/07/Itslearning.Integration.ContentImport.Services.Entities">
+  <xs:import schemaLocation="https://f19-fronter.itslbeta.com:4421/DataService.svc?xsd=xsd3" namespace="http://schemas.datacontract.org/2004/07/Itslearning.Integration.ContentImport.Model.Entities"/>
+  <xs:complexType name="DataMessage">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Data" nillable="true" type="xs:string"/>
+      <xs:element minOccurs="0" name="Type" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="DataMessage" nillable="true" type="tns:DataMessage"/>
+  <xs:complexType name="DataMessageResult">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="MessageId" type="xs:int"/>
+      <xs:element minOccurs="0" name="Status" type="tns:DataMessageStatus"/>
+      <xs:element minOccurs="0" name="StatusDetails" nillable="true" type="tns:ArrayOfDataMessageStatusDetail"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="DataMessageResult" nillable="true" type="tns:DataMessageResult"/>
+  <xs:simpleType name="DataMessageStatus">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="InQueue"/>
+      <xs:enumeration value="Finished"/>
+      <xs:enumeration value="Errors"/>
+      <xs:enumeration value="Warnings"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="DataMessageStatus" nillable="true" type="tns:DataMessageStatus"/>
+  <xs:complexType name="ArrayOfDataMessageStatusDetail">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="DataMessageStatusDetail" nillable="true" type="tns:DataMessageStatusDetail"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfDataMessageStatusDetail" nillable="true" type="tns:ArrayOfDataMessageStatusDetail"/>
+  <xs:complexType name="DataMessageStatusDetail">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Entity" nillable="true" type="xs:string"/>
+      <xs:element minOccurs="0" name="Message" nillable="true" type="xs:string"/>
+      <xs:element minOccurs="0" name="SyncKey" nillable="true" type="xs:string"/>
+      <xs:element minOccurs="0" name="Type" type="tns:DataMessageStatusType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="DataMessageStatusDetail" nillable="true" type="tns:DataMessageStatusDetail"/>
+  <xs:simpleType name="DataMessageStatusType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Info"/>
+      <xs:enumeration value="Warning"/>
+      <xs:enumeration value="Error"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="DataMessageStatusType" nillable="true" type="tns:DataMessageStatusType"/>
+  <xs:complexType name="ArrayOfDataMessageType">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="DataMessageType" nillable="true" type="tns:DataMessageType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfDataMessageType" nillable="true" type="tns:ArrayOfDataMessageType"/>
+  <xs:complexType name="DataMessageType">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Identifier" type="xs:int"/>
+      <xs:element minOccurs="0" name="Name" nillable="true" type="xs:string"/>
+      <xs:element minOccurs="0" name="ProcessingType" type="q1:MessageProcessingType" xmlns:q1="http://schemas.datacontract.org/2004/07/Itslearning.Integration.ContentImport.Model.Entities"/>
+      <xs:element minOccurs="0" name="Schema" nillable="true" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="DataMessageType" nillable="true" type="tns:DataMessageType"/>
+  <xs:complexType name="ArrayOfExtension">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Extension" nillable="true" type="tns:Extension"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfExtension" nillable="true" type="tns:ArrayOfExtension"/>
+  <xs:complexType name="Extension">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ContentSchema" nillable="true" type="xs:string"/>
+      <xs:element minOccurs="0" name="ExtensionId" type="xs:int"/>
+      <xs:element minOccurs="0" name="Name" nillable="true" type="xs:string"/>
+      <xs:element minOccurs="0" name="SupportsFileUpload" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Extension" nillable="true" type="tns:Extension"/>
+</xs:schema>]]></con:content><con:type>http://www.w3.org/2001/XMLSchema</con:type></con:part><con:part><con:url>https://f19-fronter.itslbeta.com:4421/DataService.svc?xsd=xsd3</con:url><con:content><![CDATA[<xs:schema elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/Itslearning.Integration.ContentImport.Model.Entities" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://schemas.datacontract.org/2004/07/Itslearning.Integration.ContentImport.Model.Entities">
+  <xs:import schemaLocation="https://f19-fronter.itslbeta.com:4421/DataService.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/"/>
+  <xs:simpleType name="MessageProcessingType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Asynchronous">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">1</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Synchronous">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">2</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="MessageProcessingType" nillable="true" type="tns:MessageProcessingType"/>
+</xs:schema>]]></con:content><con:type>http://www.w3.org/2001/XMLSchema</con:type></con:part><con:part><con:url>https://f19-fronter.itslbeta.com:4421/DataService.svc?xsd=xsd1</con:url><con:content><![CDATA[<xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://schemas.microsoft.com/2003/10/Serialization/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://schemas.microsoft.com/2003/10/Serialization/">
+  <xs:element name="anyType" nillable="true" type="xs:anyType"/>
+  <xs:element name="anyURI" nillable="true" type="xs:anyURI"/>
+  <xs:element name="base64Binary" nillable="true" type="xs:base64Binary"/>
+  <xs:element name="boolean" nillable="true" type="xs:boolean"/>
+  <xs:element name="byte" nillable="true" type="xs:byte"/>
+  <xs:element name="dateTime" nillable="true" type="xs:dateTime"/>
+  <xs:element name="decimal" nillable="true" type="xs:decimal"/>
+  <xs:element name="double" nillable="true" type="xs:double"/>
+  <xs:element name="float" nillable="true" type="xs:float"/>
+  <xs:element name="int" nillable="true" type="xs:int"/>
+  <xs:element name="long" nillable="true" type="xs:long"/>
+  <xs:element name="QName" nillable="true" type="xs:QName"/>
+  <xs:element name="short" nillable="true" type="xs:short"/>
+  <xs:element name="string" nillable="true" type="xs:string"/>
+  <xs:element name="unsignedByte" nillable="true" type="xs:unsignedByte"/>
+  <xs:element name="unsignedInt" nillable="true" type="xs:unsignedInt"/>
+  <xs:element name="unsignedLong" nillable="true" type="xs:unsignedLong"/>
+  <xs:element name="unsignedShort" nillable="true" type="xs:unsignedShort"/>
+  <xs:element name="char" nillable="true" type="tns:char"/>
+  <xs:simpleType name="char">
+    <xs:restriction base="xs:int"/>
+  </xs:simpleType>
+  <xs:element name="duration" nillable="true" type="tns:duration"/>
+  <xs:simpleType name="duration">
+    <xs:restriction base="xs:duration">
+      <xs:pattern value="\-?P(\d*D)?(T(\d*H)?(\d*M)?(\d*(\.\d*)?S)?)?"/>
+      <xs:minInclusive value="-P10675199DT2H48M5.4775808S"/>
+      <xs:maxInclusive value="P10675199DT2H48M5.4775807S"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="guid" nillable="true" type="tns:guid"/>
+  <xs:simpleType name="guid">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[\da-fA-F]{8}-[\da-fA-F]{4}-[\da-fA-F]{4}-[\da-fA-F]{4}-[\da-fA-F]{12}"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:attribute name="FactoryType" type="xs:QName"/>
+  <xs:attribute name="Id" type="xs:ID"/>
+  <xs:attribute name="Ref" type="xs:IDREF"/>
+</xs:schema>]]></con:content><con:type>http://www.w3.org/2001/XMLSchema</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>https://f19-fronter.itslbeta.com:4421/DataService.svc</con:endpoint></con:endpoints><con:operation id="8ab9bd77-90e1-4dd1-972c-e17f128fca57" isOneWay="false" action="http://tempuri.org/IDataService/AddMessage" name="AddMessage" bindingOperationName="AddMessage" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="1f793f77-6330-46be-8e7b-86d70b5cb0f2" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://f19-fronter.itslbeta.com:4421/DataService.svc</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/" xmlns:its="http://schemas.datacontract.org/2004/07/Itslearning.Integration.ContentImport.Services.Entities">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <tem:AddMessage>
+         <!--Optional:-->
+         <tem:dataMessage>
+            <!--Optional:-->
+            <its:Data>?</its:Data>
+            <!--Optional:-->
+            <its:Type>?</its:Type>
+         </tem:dataMessage>
+      </tem:AddMessage>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://tempuri.org/IDataService/AddMessage"/></con:call></con:operation><con:operation id="f8fc3ef1-e02f-4fe4-9e70-10a0bf14add1" isOneWay="false" action="http://tempuri.org/IDataService/GetExtensions" name="GetExtensions" bindingOperationName="GetExtensions" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="7dd8073a-ca8e-4f12-ae46-a5d72e80b6aa" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://f19-fronter.itslbeta.com:4421/DataService.svc</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <tem:GetExtensions/>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://tempuri.org/IDataService/GetExtensions"/></con:call></con:operation><con:operation id="c7600449-c698-4e6e-b9db-09c68b62c8e6" isOneWay="false" action="http://tempuri.org/IDataService/GetMessageResult" name="GetMessageResult" bindingOperationName="GetMessageResult" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="8291cd91-71b5-46ee-b7e8-c96ad54b77cd" name="Request 1"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://f19-fronter.itslbeta.com:4421/DataService.svc</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <tem:GetMessageResult>
+         <!--Optional:-->
+         <tem:messageId>?</tem:messageId>
+      </tem:GetMessageResult>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://tempuri.org/IDataService/GetMessageResult"/><con:wsrmConfig version="1.2"/></con:call></con:operation><con:operation id="0335a4c7-a6df-478b-a8f6-757b2090fad5" isOneWay="false" action="http://tempuri.org/IDataService/GetMessageTypes" name="GetMessageTypes" bindingOperationName="GetMessageTypes" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="d69fb0a2-8539-4f05-9be3-7f4b630f404f" name="Request 1" wssPasswordType="PasswordText"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://f19-fronter.itslbeta.com:4421/DataService.svc</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <tem:GetMessageTypes/>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:credentials><con:username>88b7e536-249a-4b65-a898-7e81db34ba9a</con:username><con:password>89f9577b-f693-49c0-840d-29a1338f1bfd</con:password><con:domain/><con:selectedAuthProfile>Basic</con:selectedAuthProfile><con:addedBasicAuthenticationTypes>Basic</con:addedBasicAuthenticationTypes><con:preemptive>false</con:preemptive><con:authType>Global HTTP Settings</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://tempuri.org/IDataService/GetMessageTypes"/><con:wsrmConfig version="1.2"/></con:call></con:operation></con:interface><con:interface xsi:type="con:WsdlInterface" id="aceb5b91-3e45-4fdf-b1d1-fd53c4a14cdb" wsaVersion="NONE" name="BasicHttpBinding_IFileStreamService" type="wsdl" bindingName="{http://tempuri.org/}BasicHttpBinding_IFileStreamService" soapVersion="1_1" anonymous="optional" definition="https://f19-fronter.itslbeta.com:4421/FileStreamService.svc?wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="https://f19-fronter.itslbeta.com:4421/FileStreamService.svc?wsdl"><con:part><con:url>https://f19-fronter.itslbeta.com:4421/FileStreamService.svc?wsdl</con:url><con:content><![CDATA[<wsdl:definitions name="FileStreamService" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://tempuri.org/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/">
+  <wsp:Policy wsu:Id="BasicHttpBinding_IFileStreamService_policy">
+    <wsp:ExactlyOne>
+      <wsp:All>
+        <wsoma:OptimizedMimeSerialization xmlns:wsoma="http://schemas.xmlsoap.org/ws/2004/09/policy/optimizedmimeserialization"/>
+        <sp:TransportBinding xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:TransportToken>
+              <wsp:Policy>
+                <sp:HttpsToken RequireClientCertificate="false"/>
+              </wsp:Policy>
+            </sp:TransportToken>
+            <sp:AlgorithmSuite>
+              <wsp:Policy>
+                <sp:Basic256/>
+              </wsp:Policy>
+            </sp:AlgorithmSuite>
+            <sp:Layout>
+              <wsp:Policy>
+                <sp:Lax/>
+              </wsp:Policy>
+            </sp:Layout>
+            <sp:IncludeTimestamp/>
+          </wsp:Policy>
+        </sp:TransportBinding>
+        <sp:SignedSupportingTokens xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:UsernameToken sp:IncludeToken="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy/IncludeToken/AlwaysToRecipient">
+              <wsp:Policy>
+                <sp:WssUsernameToken10/>
+              </wsp:Policy>
+            </sp:UsernameToken>
+          </wsp:Policy>
+        </sp:SignedSupportingTokens>
+        <sp:Wss10 xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy/>
+        </sp:Wss10>
+      </wsp:All>
+    </wsp:ExactlyOne>
+  </wsp:Policy>
+  <wsdl:types>
+    <xsd:schema targetNamespace="http://tempuri.org/Imports">
+      <xsd:import schemaLocation="https://f19-fronter.itslbeta.com:4421/FileStreamService.svc?xsd=xsd1" namespace="http://tempuri.org/"/>
+      <xsd:import schemaLocation="https://f19-fronter.itslbeta.com:4421/FileStreamService.svc?xsd=xsd0" namespace="http://schemas.microsoft.com/Message"/>
+      <xsd:import schemaLocation="https://f19-fronter.itslbeta.com:4421/FileStreamService.svc?xsd=xsd2" namespace="http://schemas.microsoft.com/2003/10/Serialization/"/>
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="StreamMessage">
+    <wsdl:part name="parameters" element="tns:StreamMessage"/>
+  </wsdl:message>
+  <wsdl:message name="StreamMessage_Headers">
+    <wsdl:part name="ExtensionId" element="tns:ExtensionId"/>
+    <wsdl:part name="Name" element="tns:Name"/>
+    <wsdl:part name="SiteId" element="tns:SiteId"/>
+  </wsdl:message>
+  <wsdl:message name="FileStreamUploadResponse">
+    <wsdl:part name="parameters" element="tns:FileStreamUploadResponse"/>
+  </wsdl:message>
+  <wsdl:portType name="IFileStreamService">
+    <wsdl:operation name="UploadFile">
+      <wsdl:input wsaw:Action="http://tempuri.org/IFileStreamService/UploadFile" name="StreamMessage" message="tns:StreamMessage"/>
+      <wsdl:output wsaw:Action="http://tempuri.org/IFileStreamService/UploadFileResponse" name="FileStreamUploadResponse" message="tns:FileStreamUploadResponse"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="BasicHttpBinding_IFileStreamService" type="tns:IFileStreamService">
+    <wsp:PolicyReference URI="#BasicHttpBinding_IFileStreamService_policy"/>
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="UploadFile">
+      <soap:operation soapAction="http://tempuri.org/IFileStreamService/UploadFile" style="document"/>
+      <wsdl:input name="StreamMessage">
+        <soap:header message="tns:StreamMessage_Headers" part="ExtensionId" use="literal"/>
+        <soap:header message="tns:StreamMessage_Headers" part="Name" use="literal"/>
+        <soap:header message="tns:StreamMessage_Headers" part="SiteId" use="literal"/>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="FileStreamUploadResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="FileStreamService">
+    <wsdl:port name="BasicHttpBinding_IFileStreamService" binding="tns:BasicHttpBinding_IFileStreamService">
+      <soap:address location="https://f19-fronter.itslbeta.com:4421/FileStreamService.svc"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part><con:part><con:url>https://f19-fronter.itslbeta.com:4421/FileStreamService.svc?xsd=xsd1</con:url><con:content><![CDATA[<xs:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://tempuri.org/">
+  <xs:import schemaLocation="https://f19-fronter.itslbeta.com:4421/FileStreamService.svc?xsd=xsd0" namespace="http://schemas.microsoft.com/Message"/>
+  <xs:element name="StreamMessage">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Content" type="q1:StreamBody" xmlns:q1="http://schemas.microsoft.com/Message"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ExtensionId" type="xs:int"/>
+  <xs:element name="Name" nillable="true" type="xs:string"/>
+  <xs:element name="SiteId" nillable="true" type="xs:int"/>
+  <xs:element name="FileStreamUploadResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="FileId" nillable="true" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>]]></con:content><con:type>http://www.w3.org/2001/XMLSchema</con:type></con:part><con:part><con:url>https://f19-fronter.itslbeta.com:4421/FileStreamService.svc?xsd=xsd0</con:url><con:content>&lt;xs:schema elementFormDefault="qualified" targetNamespace="http://schemas.microsoft.com/Message" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://schemas.microsoft.com/Message">
+  &lt;xs:simpleType name="StreamBody">
+    &lt;xs:restriction base="xs:base64Binary"/>
+  &lt;/xs:simpleType>
+&lt;/xs:schema></con:content><con:type>http://www.w3.org/2001/XMLSchema</con:type></con:part><con:part><con:url>https://f19-fronter.itslbeta.com:4421/FileStreamService.svc?xsd=xsd2</con:url><con:content><![CDATA[<xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://schemas.microsoft.com/2003/10/Serialization/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://schemas.microsoft.com/2003/10/Serialization/">
+  <xs:element name="anyType" nillable="true" type="xs:anyType"/>
+  <xs:element name="anyURI" nillable="true" type="xs:anyURI"/>
+  <xs:element name="base64Binary" nillable="true" type="xs:base64Binary"/>
+  <xs:element name="boolean" nillable="true" type="xs:boolean"/>
+  <xs:element name="byte" nillable="true" type="xs:byte"/>
+  <xs:element name="dateTime" nillable="true" type="xs:dateTime"/>
+  <xs:element name="decimal" nillable="true" type="xs:decimal"/>
+  <xs:element name="double" nillable="true" type="xs:double"/>
+  <xs:element name="float" nillable="true" type="xs:float"/>
+  <xs:element name="int" nillable="true" type="xs:int"/>
+  <xs:element name="long" nillable="true" type="xs:long"/>
+  <xs:element name="QName" nillable="true" type="xs:QName"/>
+  <xs:element name="short" nillable="true" type="xs:short"/>
+  <xs:element name="string" nillable="true" type="xs:string"/>
+  <xs:element name="unsignedByte" nillable="true" type="xs:unsignedByte"/>
+  <xs:element name="unsignedInt" nillable="true" type="xs:unsignedInt"/>
+  <xs:element name="unsignedLong" nillable="true" type="xs:unsignedLong"/>
+  <xs:element name="unsignedShort" nillable="true" type="xs:unsignedShort"/>
+  <xs:element name="char" nillable="true" type="tns:char"/>
+  <xs:simpleType name="char">
+    <xs:restriction base="xs:int"/>
+  </xs:simpleType>
+  <xs:element name="duration" nillable="true" type="tns:duration"/>
+  <xs:simpleType name="duration">
+    <xs:restriction base="xs:duration">
+      <xs:pattern value="\-?P(\d*D)?(T(\d*H)?(\d*M)?(\d*(\.\d*)?S)?)?"/>
+      <xs:minInclusive value="-P10675199DT2H48M5.4775808S"/>
+      <xs:maxInclusive value="P10675199DT2H48M5.4775807S"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="guid" nillable="true" type="tns:guid"/>
+  <xs:simpleType name="guid">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[\da-fA-F]{8}-[\da-fA-F]{4}-[\da-fA-F]{4}-[\da-fA-F]{4}-[\da-fA-F]{12}"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:attribute name="FactoryType" type="xs:QName"/>
+  <xs:attribute name="Id" type="xs:ID"/>
+  <xs:attribute name="Ref" type="xs:IDREF"/>
+</xs:schema>]]></con:content><con:type>http://www.w3.org/2001/XMLSchema</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>https://f19-fronter.itslbeta.com:4421/FileStreamService.svc</con:endpoint></con:endpoints><con:operation id="65d40dc7-ccde-4a69-b54b-f17d4b521dc0" isOneWay="false" action="http://tempuri.org/IFileStreamService/UploadFile" name="UploadFile" bindingOperationName="UploadFile" type="Request-Response" outputName="FileStreamUploadResponse" inputName="StreamMessage" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="fadb6e82-da22-4535-b87d-82a28d2badfd" name="Request 1" wssPasswordType="PasswordText"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting><con:setting id="WsdlSettings@enable-mtom">true</con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://f19-fronter.itslbeta.com:4421/FileStreamService.svc</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/">
+   <soapenv:Header>
+      <tem:Name>face.png</tem:Name>
+      <tem:ExtensionId>5000</tem:ExtensionId>
+   </soapenv:Header>
+   <soapenv:Body>
+      <tem:StreamMessage>
+         <tem:Content>face.png</tem:Content>
+      </tem:StreamMessage>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:credentials><con:username>88b7e536-249a-4b65-a898-7e81db34ba9a</con:username><con:password>89f9577b-f693-49c0-840d-29a1338f1bfd</con:password><con:selectedAuthProfile>Basic</con:selectedAuthProfile><con:addedBasicAuthenticationTypes>Basic</con:addedBasicAuthenticationTypes><con:authType>Global HTTP Settings</con:authType></con:credentials><con:attachment><con:name>face.png</con:name><con:contentType>image/x-png</con:contentType><con:size>1606</con:size><con:contentId>face.png</con:contentId><con:url>/home/rk/dl/face.png</con:url><con:data>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</con:data><con:id>27c3b3d5-b5e9-48cb-8263-d56e7d042638</con:id></con:attachment><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://tempuri.org/IFileStreamService/UploadFile"/><con:wsrmConfig version="1.2"/></con:call></con:operation></con:interface><con:endpointStrategy xsi:type="con:DefaultEndpointStrategy" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:endpoint mode="COMPLEMENT" username="88b7e536-249a-4b65-a898-7e81db34ba9a" password="89f9577b-f693-49c0-840d-29a1338f1bfd">https://f19-fronter.itslbeta.com:4421/DataService.svc</con:endpoint></con:endpointStrategy><con:properties/><con:wssContainer/><con:oAuth2ProfileContainer/><con:oAuth1ProfileContainer/></con:soapui-project>
